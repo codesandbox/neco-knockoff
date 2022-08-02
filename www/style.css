@@ -1,0 +1,88 @@
+[v-cloak] {
+  display: none;
+}
+
+/* todo items with links */
+.todo-list li a {
+  color: #b83f45;
+  text-decoration: none;
+}
+.todo-list li a:active, .todo-list li a:hover, .todo-list li a:focus {
+  text-decoration: underline;
+}
+
+/* style the logo */
+.todoapp {
+  margin-top: 210px;
+}
+.todoapp h1 {
+  top: -260px;
+  text-shadow: -2px -2px 1px #f5f5f5,2px -2px 1px #f5f5f5,-2px 2px 1px #f5f5f5,2px 2px 1px #f5f5f5,2px 1px 2px #f5f5f5,2px -1px 2px #f5f5f5,2px 0px 1px #f5f5f5;
+}
+.todoapp h1 > img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 225px;
+  margin-bottom: -13px;
+}  
+.todoapp h1 > strong {
+  font-weight: bold;
+}
+
+/* tweak body layout */
+body {
+  display: grid;
+  grid-auto-columns: auto min-content;
+  width: 100vw;
+  min-width: initial;
+  max-width: initial;
+}
+
+#app {
+  min-width: 450px;
+  justify-self: center;
+}
+
+/* event log panel */
+.events {
+  grid-column: 2;
+  justify-self: end;
+  width: 48ch;
+
+  background: white;
+  color: #111;
+  margin-left: 2rem;
+  font-size: 12px;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
+}
+.events p {
+  border-top: 1px solid rgba(0,0,0,0.03);
+  margin: 0;
+  padding: .6rem 1rem;
+}
+.events p em {
+  display: block;
+  opacity: .6;
+}
+.events p:hover {
+  background: #b83f45;
+  color: white;
+}
+
+#codeeditor {
+  border: 1px solid #ccc;
+  position: absolute;
+  z-index: 10;
+  bottom:0;
+  left: 0;
+  opacity: .5;
+  width: 360px;
+  height: 240px;
+}
+#codeeditor.editing {
+  opacity: 1;
+  width: 100vw;
+  height: 50vh;
+  box-shadow: 0 -10vh 50vh black;
+}

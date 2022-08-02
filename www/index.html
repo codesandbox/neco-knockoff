@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>knockoff</title>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/todomvc-app-css@2.4.1/index.css"
+/>
+<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+<script type="module" src="ui.js"></script>
+
+<div id="app" @vue:mounted="setup" v-effect="save()" v-cloak>
+  <section class="todoapp">
+    <header class="header">
+      <h1>
+        <img src="logo-by-whoisaldeka.png" alt="Popeen illustration created by Karen Rustad Tölva" />
+        knock<strong>off</strong></h1>
+      <input
+        class="new-todo"
+        autofocus
+        autocomplete="off"
+        placeholder="🚀"
+        v-model="newTodo"
+        @keyup.enter="addTodo"
+      />
+    </header>
+    <section class="main" v-show="todos.length">
+      <input
+        id="toggle-all"
+        class="toggle-all"
+        type="checkbox"
+        v-model="allDone"
+      />
+      <label for="toggle-all">Mark all as complete</label>
+      <ul class="todo-list">
+        <li
+          v-for="todo in filteredTodos"
+          class="todo"
+          :key="todo.id"
+          :class="{ completed: todo.completed, editing: todo === editedTodo }"
+        >
+          <div class="view">
+            <input class="toggle" type="checkbox" v-model="todo.completed" @change="changeComplete(todo)" />
+            <label @dblclick="editTodo(todo)" v-html="linky(todo.title)"></label>
+            <button class="destroy" @click="removeTodo(todo)"></button>
+          </div>
+          <input
+            class="edit"
+            type="text"
+            v-model="todo.title"
+            v-effect="if (todo === editedTodo) $el.focus()"
+            @blur="doneEdit(todo)"
+            @keyup.enter="doneEdit(todo)"
+            @keyup.escape="cancelEdit(todo)"
+          />
+        </li>
+      </ul>
+    </section>
+    <footer class="footer" v-show="todos.length">
+      <span class="todo-count">
+        <strong>{{ remaining }}</strong>
+        <span>{{ pluralize(remaining) }} left</span>
+      </span>
+      <ul class="filters">
+        <li>
+          <a href="#/all" :class="{ selected: visibility === 'all' }">All</a>
+        </li>
+        <li>
+          <a href="#/active" :class="{ selected: visibility === 'active' }"
+            >Active</a
+          >
+        </li>
+        <li>
+          <a
+            href="#/completed"
+            :class="{ selected: visibility === 'completed' }"
+            >Completed</a
+          >
+        </li>
+      </ul>
+      <button
+        class="clear-completed"
+        @click="removeCompleted"
+        v-show="todos.length > remaining"
+      >
+        Clear completed
+      </button>
+    </footer>
+  </section>
+</div>
+
+<div id="events" class="events">
+  <!--
+  <p>🐼 Subo has changed a task: 📝 [Flo Mask Pro - NIOSH &amp; NIST Tests - YouTube https://www.youtube.com/watch?v=s24AAA1F3OQ] (7:40) <em>This is a YouTube link so FYI I added its duration</em></p>
+  <p>🐼 Subo has changed a task: 📝 [Flo Mask Pro - NIOSH &amp; NIST Tests - YouTube https://www.youtube.com/watch?v=s24AAA1F3OQ] <em>Expanded the title of the linked page for you</em></p>
+  <p>🧒 You added a new item: 📝 http://youtu.be/s24AAA1F3OQ</p>
+  <p>🧒 You have completed a task: ✅ Important task!!!</p>
+  <p>🐼 Subo has changed a task: 📝 Important task!!! <em>Added exclamation marks as this seems rather important!</em></p>
+  <p>🧒 You added a new item: 📝 Important task</p>
+  <p>🧒 You created a new TODO list</p>
+  -->
+
+  <p
+    v-for="ev in eventLog"
+    class="event"
+    :key="ev.id"
+  >
+    {{ ev.from !== "subo" ? "🧒 You" : "🐼 Subo" }}
+
+    <span v-if="ev.type == 'rem'">
+      noted:
+    </span>
+    <span v-else-if="ev.type == 'add'">
+      added a task: 📝 {{ ev.task.title }}
+    </span>
+    <span v-else-if="ev.type == 'del'">
+      removed {{ ev.task.title }} 🗑️
+    </span>
+    <span v-else-if="ev.type == 'change'">
+      changed 📝 {{ ev.task.title }}
+    </span>
+    <span v-else-if="ev.type == 'done'">
+      completed {{ ev.task.title }} ✅
+    </span>
+
+    <em v-if="ev.note" v-html="ev.note"></em>
+  </p>
+
+</div>
+
+<div id="codeeditor"></div>
+
+<link rel="stylesheet" href="/editor/index.css" />
+<script type="module" src="/editor/index.js"></script>
+
+</body>
+</html>

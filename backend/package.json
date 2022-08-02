@@ -1,0 +1,18 @@
+{
+  "name": "knockoff",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Flaki <git@flaki.hu>",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "http-proxy-middleware": "^2.0.6",
+    "polka": "^0.5.2",
+    "sirv": "^2.0.2"
+  }
+}
