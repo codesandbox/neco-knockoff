@@ -9,6 +9,11 @@
 
   // These tasks can be run from CodeSandbox. Running one will open a log in the app.
   "tasks": {
+    "make-test": {
+      "name": "Test the app",
+      "command": "make test",
+      "runAtStart": false
+    },
     "make-run-local": {
       "name": "Run App & Compute",
       "command": "make run-local",
