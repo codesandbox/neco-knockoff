@@ -1,9 +1,4 @@
-import { readFileSync } from 'fs'
-import { provisionRunnable, targetPort } from './provision-runnable.js'
-
 const PORT = process.env.PORT || 8080
-
-const SATURL = 'http://localhost:'+targetPort
 
 import { fileURLToPath } from 'node:url'
 const WWWROOT = fileURLToPath(new URL('../www', import.meta.url))
@@ -13,11 +8,8 @@ import polka from 'polka'
 
 import bodyparser from 'body-parser'
 
-import { createProxyMiddleware } from 'http-proxy-middleware'
+//import { createProxyMiddleware } from 'http-proxy-middleware'
 
-
-const DEFAULT_HANDLER = readFileSync(fileURLToPath(new URL('../wasm/runnable-template.js', import.meta.url))).toString()
-let handlerCode = DEFAULT_HANDLER
 
 let state = {
   todos: [],
@@ -34,21 +26,14 @@ polka()
   .use(sirv(WWWROOT, { maxAge: 60 }))
 	.use(bodyparser.json())
 
-  // Update the deployed WebAssembly processing script
+  // No longer making deployments but keeping this as a deploy callback for now
   .post('/deploy', async (req, res) => {
-    await provisionRunnable(req.body)
-    handlerCode = req.body.code
 
     // Log successful deployment
     state.events.push({ from: 'subo', type: 'rem', note: 'New day, new me! ✨' })
 
     // Send updated state
-		sendState(res)
-	})
-  // Get the source for the last-deployed script
-  .get('/code', async (req, res) => {
-		res.writeHead(200, { 'Content-Type': 'text/javascript' })
-    res.end(handlerCode)
+    sendState(res)
   })
 
   // Fetch the app state
@@ -62,11 +47,10 @@ polka()
   .get('/reset', async (req, res) => {
     state.todos = []
     state.events = []
-    handlerCode = DEFAULT_HANDLER
 
-    await provisionRunnable(handlerCode)
+    /* TODO: should this remove all runnables? */
 
-		res.writeHead(303, { 'Content-Type': 'text/plain', 'Location': '/' })
+    res.writeHead(303, { 'Content-Type': 'text/plain', 'Location': '/' })
     res.end('OK')
   })
 
@@ -87,10 +71,12 @@ polka()
 
     // Pipe user events through our processing script
     if (ev.from !== 'subo') {
-      // Technically we could also invoke sat as a binary
       let evlist
+
+      /* TODO: enumerate SCN functions and execute them 
+      let runnableUrl = ''
       try {
-        const res = await fetch(SATURL, {
+        const res = await fetch(runnableUrl, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify(ev)
@@ -103,6 +89,7 @@ polka()
         res.end(e.toString())
         return
       }
+      */
 
       console.log(evlist)
 
@@ -118,20 +105,18 @@ polka()
     sendState(res)
   })
 
-  // Proxy the runnable under the /sat endpoint
+  /* TODO: we probably no longer need to proxy to the runnables
   .use(
     '/sat',
     createProxyMiddleware({
       target: SATURL
     })
   )
+  */
 
   .listen(PORT, err => {
     if (err) throw err;
     console.log(`Webserver listening on ${PORT}`);
-
-    // Automatically provision the handler from the default template
-    provisionRunnable({ code: handlerCode })
   });
 
 
