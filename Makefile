@@ -7,6 +7,9 @@ build-compute:
 run-local: build build-compute
 	cd suborbital && docker-compose up -d
 
+shutdown:
+	cd suborbital && docker-compose down
+
 test:
 	docker build -t knockoff app
 	docker run -p 8080:8080 -t knockoff
