@@ -1,4 +1,7 @@
+const SCC_ENV_TOKEN = process.env.SCC_ENV_TOKEN
 const PORT = process.env.PORT || 8080
+
+const CONTROLPLANE_URL = 'http://scc-control-plane:8081'
 
 import { fileURLToPath } from 'node:url'
 const WWWROOT = fileURLToPath(new URL('../www', import.meta.url))
@@ -105,7 +108,26 @@ polka()
     sendState(res)
   })
 
-  .r
+  // Add new runnable
+  .post('/compute/add', async (req, res) => {
+    const fn = 'f0'
+    const cntReq = await fetch(
+      `${CONTROLPLANE_URL}/api/v1/token/com.suborbital.acmeco/knockoff/${fn}`,
+      { headers: {
+          'Authorization': `Bearer ${SCC_ENV_TOKEN}`
+      } } )
+
+    res.writeHead(cntReq.status, { 'Content-Type': 'text/plain' })
+    res.end(await cntReq.text())
+  })
+
+  // Edit a given runnable by its sequential id
+  .post('/compute/edit', async (req, res) => {
+    res.writeHead(303, { 'Content-Type': 'text/plain', 'Location': '/' })
+  })
+
+  // Remove runnable
+  .post('/compute/remove', async (req, res) => {})
 
   /* TODO: we probably no longer need to proxy to the runnables
   .use(
