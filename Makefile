@@ -4,7 +4,7 @@ build:
 build-compute:
 	cd suborbital && subo compute deploy core --local --dryrun
 
-run-local:
+run-local: build build-compute
 	cd suborbital && docker-compose up -d
 
 test:
