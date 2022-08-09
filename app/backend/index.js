@@ -105,6 +105,8 @@ polka()
     sendState(res)
   })
 
+  .r
+
   /* TODO: we probably no longer need to proxy to the runnables
   .use(
     '/sat',
