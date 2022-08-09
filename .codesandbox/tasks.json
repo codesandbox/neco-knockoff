@@ -1,13 +1,18 @@
 {
   // These tasks will run in order when initializing your CodeSandbox project.
-  "setupTasks": [],
+  "setupTasks": [
+    {
+      "name": "CodeSandbox project init",
+      "command": "/bin/sh /project/knockoff/csb-init.sh"
+    }
+  ],
 
   // These tasks can be run from CodeSandbox. Running one will open a log in the app.
   "tasks": {
-    "docker build -t knockoff . && docker run -p 8080:8080 -t knockoff": {
-      "name": "docker build -t knockoff . && docker run -p 8080:8080 -t knockoff",
-      "command": "docker build -t knockoff . && docker run -p 8080:8080 -t knockoff",
-      "runAtStart": true
+    "make-run-local": {
+      "name": "Run App & Compute",
+      "command": "make run-local",
+      "runAtStart": false
     }
   }
 }

@@ -1,3 +1,12 @@
+build:
+	docker build -t knockoff app
+
+build-compute:
+	cd suborbital && subo compute deploy core --local --dryrun
+
+run-local:
+	cd suborbital && docker-compose up -d
+
 test:
 	docker build -t knockoff app
 	docker run -p 8080:8080 -t knockoff
