@@ -3,10 +3,17 @@ const SCC_IDENT = 'com.suborbital.acmeco'
 const SCC_NS = 'knockoff'
 const PORT = process.env.PORT || 8080
 
+const APP_URL = 'http://local.suborbital.network:3000'
 const CONTROLPLANE_URL = 'http://scc-control-plane:8081'
+const BUILDER_URL = 'http://scc-builder:8082'
 
-const APP_PUBLIC = process.env.CODESANDBOX_HOST?.replace('$PORT', 3000) ?? 'https://example.com'
-const BUILDER_PUBLIC = process.env.CODESANDBOX_HOST?.replace('$PORT', 8002) ?? 'https://example.com'
+// When deploying truly-locally we use the localhost and http to expose the app,
+// and will proxy builder requests
+// When on CodeSandbox, CSB takes care of exposing our services on HTTPS preview URLs
+const APP_PUBLIC = process.env.CODESANDBOX_HOST?.replace('$PORT', 3000) ?? APP_URL
+const BUILDER_PUBLIC = process.env.CODESANDBOX_HOST
+    ? 'https://'+process.env.CODESANDBOX_HOST.replace('$PORT', 8082)
+    : APP_URL
 
 import { fileURLToPath } from 'node:url'
 const WWWROOT = fileURLToPath(new URL('../www', import.meta.url))
@@ -16,7 +23,7 @@ import polka from 'polka'
 
 import bodyparser from 'body-parser'
 
-//import { createProxyMiddleware } from 'http-proxy-middleware'
+import { createProxyMiddleware } from 'http-proxy-middleware'
 
 
 let state = {
@@ -131,10 +138,18 @@ const service = polka()
   })
 
   // Edit a given runnable by its sequential id
-  .get('/compute/editor', async (req, res) => {
-    const id = 0 // for now...
-    const lang = 'javascript' // for now...
+  .get('/compute/editor/:id', async (req, res) => {
+    const id = req.params.id ?? 0
+    const lang = req.query.t ?? 'javascript'
     const handler = handlers[id]
+
+    // The handler has not been initialized yet!
+    if (!handler) {
+        res.writeHead(424, { 'Content-Type': 'text/plain' })
+        return res.end('This handler has not been initialized yet!')
+    }
+
+    // Build the editor URL and redirect
     const editorUrl = `https://editor.suborbital.network?builder=${encodeURIComponent(BUILDER_PUBLIC)}&token=${handler.data.token}&ident=${SCC_IDENT}&namespace=${SCC_NS}&fn=${handler.fn}&template=${lang}`
 
     res.writeHead(303, { 'Content-Type': 'text/plain', 'Location': editorUrl })
@@ -142,20 +157,19 @@ const service = polka()
   })
 
   // Remove runnable
-  .post('/compute/delete', async (req, res) => {
+  .post('/compute/delete/:id', async (req, res) => {
     // don't bother deleting the actual function, just clear the ref from handlers
     const id = 0 // for now...
     handlers = handlers.filter(i => i.id !== id)
   })
 
-  /* TODO: we probably no longer need to proxy to the runnables
+  // We no longer need to proxy to the runnables, but expose the builder on /api/
   .use(
-    '/sat',
+    '/api',
     createProxyMiddleware({
-      target: SATURL
+      target: BUILDER_URL,
     })
   )
-  */
 
   .listen(PORT, err => {
     if (err) throw err;
