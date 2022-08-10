@@ -6,6 +6,7 @@ services:
     depends_on:
       - scc-atmo
     environment:
+      SCC_ENV_TOKEN: $SCC_ENV_TOKEN
       CODESANDBOX_HOST: $CODESANDBOX_HOST
     ports:
      - "3000:8080"
@@ -13,12 +14,12 @@ services:
      - scn
 
   scc-control-plane:
-    image: suborbital/scc-control-plane:heartbreak
+    image: suborbital/scc-control-plane:v0.3.1
     command: controlplane
     volumes:
       - ./:/home/scn
     environment:
-      SCC_LOG_LEVEL: debug
+      SCC_LOG_LEVEL: info
       SCC_HEADLESS: "true"
       SCC_HTTP_PORT: 8081
     env_file: 
@@ -34,7 +35,7 @@ services:
     volumes:
       - ./:/home/scn
     environment:
-      SCC_LOG_LEVEL: debug
+      SCC_LOG_LEVEL: info
       SCC_HTTP_PORT: 8082
     ports:
       - "8082:8082"
@@ -49,7 +50,7 @@ services:
     environment:
       ATMO_CONTROL_PLANE: "scc-control-plane:8081"
       ATMO_HEADLESS: "true"
-      ATMO_LOG_LEVEL: debug
+      ATMO_LOG_LEVEL: info
       ATMO_HTTP_PORT: 8080
     ports:
       - "8080:8080"
