@@ -125,15 +125,30 @@ const service = polka()
   .post('/compute/create', async (req, res) => {
     const id = handlers.length
     const fn = 'f'+id
-    const cntReq = await fetch(
-      `${CONTROLPLANE_URL}/api/v1/token/${SCC_IDENT}/${SCC_NS}/${fn}`,
-      { headers: {
-          'Authorization': `Bearer ${SCC_ENV_TOKEN}`
-      } } )
 
-    res.writeHead(cntReq.status, { 'Content-Type': 'text/plain' })
-    const data = await cntReq.json()
+    // Try to talk to the control plane to fetch a new editor token
+    let tokenReq, data
+    try {
+      tokenReq = await fetch(
+        `${CONTROLPLANE_URL}/api/v1/token/${SCC_IDENT}/${SCC_NS}/${fn}`,
+        { headers: {
+            'Authorization': `Bearer ${SCC_ENV_TOKEN}`
+        } } )
+
+        data = await tokenReq.json()
+    } catch (e) {
+      console.log(e)
+      tokenReq = { status: 503 }
+    }
+
+    if (tokenReq.status !== 200) {
+      res.writeHead(tokenReq.status, { 'Content-Type': 'text/plain' })
+      return res.end()
+    }
+
     handlers[id] = { id, fn, data }
+
+    res.writeHead(200, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify(handlers[id]))
   })
 
