@@ -1,7 +1,12 @@
 const SCC_ENV_TOKEN = process.env.SCC_ENV_TOKEN
+const SCC_IDENT = 'com.suborbital.acmeco'
+const SCC_NS = 'knockoff'
 const PORT = process.env.PORT || 8080
 
 const CONTROLPLANE_URL = 'http://scc-control-plane:8081'
+
+const APP_PUBLIC = process.env.CODESANDBOX_HOST?.replace('$PORT', 3000) ?? 'https://example.com'
+const BUILDER_PUBLIC = process.env.CODESANDBOX_HOST?.replace('$PORT', 8002) ?? 'https://example.com'
 
 import { fileURLToPath } from 'node:url'
 const WWWROOT = fileURLToPath(new URL('../www', import.meta.url))
@@ -18,6 +23,7 @@ let state = {
   todos: [],
   events: []
 }
+let handlers = []
 
 const sendState = (res) =>{
   // TODO: maybe skip sending if there was no updates?
@@ -25,7 +31,7 @@ const sendState = (res) =>{
   res.end(JSON.stringify(state))
 }
 
-polka()
+const service = polka()
   .use(sirv(WWWROOT, { maxAge: 60 }))
 	.use(bodyparser.json())
 
@@ -109,25 +115,38 @@ polka()
   })
 
   // Add new runnable
-  .post('/compute/add', async (req, res) => {
-    const fn = 'f0'
+  .post('/compute/create', async (req, res) => {
+    const id = handlers.length
+    const fn = 'f'+id
     const cntReq = await fetch(
-      `${CONTROLPLANE_URL}/api/v1/token/com.suborbital.acmeco/knockoff/${fn}`,
+      `${CONTROLPLANE_URL}/api/v1/token/${SCC_IDENT}/${SCC_NS}/${fn}`,
       { headers: {
           'Authorization': `Bearer ${SCC_ENV_TOKEN}`
       } } )
 
     res.writeHead(cntReq.status, { 'Content-Type': 'text/plain' })
-    res.end(await cntReq.text())
+    const data = await cntReq.json()
+    handlers[id] = { id, fn, data }
+    res.end(JSON.stringify(handlers[id]))
   })
 
   // Edit a given runnable by its sequential id
-  .post('/compute/edit', async (req, res) => {
-    res.writeHead(303, { 'Content-Type': 'text/plain', 'Location': '/' })
+  .get('/compute/editor', async (req, res) => {
+    const id = 0 // for now...
+    const lang = 'javascript' // for now...
+    const handler = handlers[id]
+    const editorUrl = `https://editor.suborbital.network?builder=${encodeURIComponent(BUILDER_PUBLIC)}&token=${handler.data.token}&ident=${SCC_IDENT}&namespace=${SCC_NS}&fn=${handler.fn}&template=${lang}`
+
+    res.writeHead(303, { 'Content-Type': 'text/plain', 'Location': editorUrl })
+    res.end()
   })
 
   // Remove runnable
-  .post('/compute/remove', async (req, res) => {})
+  .post('/compute/delete', async (req, res) => {
+    // don't bother deleting the actual function, just clear the ref from handlers
+    const id = 0 // for now...
+    handlers = handlers.filter(i => i.id !== id)
+  })
 
   /* TODO: we probably no longer need to proxy to the runnables
   .use(
@@ -140,9 +159,10 @@ polka()
 
   .listen(PORT, err => {
     if (err) throw err;
-    console.log(`Webserver listening on ${PORT}`);
-  });
-
+    console.log(`Webserver listening on ${PORT}`)
+    console.log(`GET routes: `+Object.keys(service.handlers.GET).join(' ; '))
+    console.log(`POST routes: `+Object.keys(service.handlers.POST).join(' ; '))
+  })
 
 
 // For some reason inside docker Ctrl+C doesn't properly shut down the container without this
