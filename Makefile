@@ -2,7 +2,7 @@ build:
 	docker build -t knockoff app
 
 build-compute:
-	cd suborbital && subo compute deploy core --local --dryrun
+	cd suborbital && subo compute deploy core --local
 
 run-local: build build-compute
 	cd suborbital && docker-compose up -d
