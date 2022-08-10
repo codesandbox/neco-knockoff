@@ -1,13 +1,13 @@
-# Knockoff - event processing in Wasm runnables
+# Knockoff - now with 100% more Compute!
 
-Knockoff is a playful TODO list demo app built for SCN-compatibility to showcase Wasm-extensibility in minimum complexity.
+Knockoff is a playful TODO list demo app built to showcase Wasm-extensibility with the Suborbital Compute platform.
+
+Compared to its younger cousin, this version is meant to showcase a full Suborbital Compute integration scenario, and while the backend is built in Node.js it actually does not use the Node.js SDK and is meant more as a showcase for general backend integration compatibility, rather than Node.js specifically (e.g. would probably run with few modifications in Deno, which would be also interesting to explore)
 
 Highlights:
 
 - Built largely on off-the-shelf code
-- Built-in JS function editor with autocompletion
-- Autocompletion for the Suborbital runtime library
-- Compiles & redeploys runnables within seconds on a single-core VM/VPS
+- 
 - Event visualization to highlight Wasm integration actions
 
 > *"POPeen" logo by [@whoisaldeka](https://twitter.com/whoisaldeka/status/1138678402930470913)*
