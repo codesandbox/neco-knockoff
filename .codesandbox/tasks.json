@@ -9,15 +9,16 @@
 
   // These tasks can be run from CodeSandbox. Running one will open a log in the app.
   "tasks": {
-    "make-test": {
-      "name": "Test the app",
+    "app-dev": {
+      "name": "Develop app backend & UI",
       "command": "make test",
-      "runAtStart": false
+      "restartOn": {
+        "files": ["app/**"]
+      }
     },
     "make-run-local": {
       "name": "Run App & Compute",
-      "command": "make run-local",
-      "runAtStart": false
+      "command": "make reinit"
     }
   }
 }

@@ -70,19 +70,29 @@ body {
   color: white;
 }
 
-#codeeditor {
-  border: 1px solid #ccc;
-  position: absolute;
-  z-index: 10;
-  bottom:0;
-  left: 0;
-  opacity: .5;
-  width: 360px;
-  height: 240px;
+/* Compute integration styling */
+.handler-toolbar {
+  position: fixed;
+  z-index: 100;
+  bottom: 0;
+  padding: 1rem;
 }
-#codeeditor.editing {
-  opacity: 1;
-  width: 100vw;
-  height: 50vh;
-  box-shadow: 0 -10vh 50vh black;
+
+.handler-toolbar button {
+	border-radius: 15%;
+	padding: .25rem;
+	border: .1rem solid #ccc;
+	background: #ddd;
+}
+.handler-toolbar button:hover,
+.handler-toolbar button:active,
+.handler-toolbar button:focus {
+	border: .1rem solid #973338;
+	background: #b83f45;
+  cursor: pointer;
+}
+.handler-toolbar button svg {
+	width: 3rem;
+	height: 3rem;
+	display: block;
 }

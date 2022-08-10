@@ -198,33 +198,33 @@ createApp({
     this.events = updates.events
   },
 
-  async deploy(codeeditor) {
-    const code = codeeditor.getValue()
-    console.log(`Deploying updated runnable...\n`, code)
+  async handler(template = 'javascript', open = true ) {
+    const id = 0
+    console.log(`Initializing handler[${id}] for ${template}...`)
 
     // Do not allow concurrent deploys
     this.deploying = true
 
     try {
-      const req = await fetch('/deploy', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          code: codeeditor.getValue(),
-          mode: 'production'
+      // initialize this handler function
+      let hInit
+      try {
+        hInit = await fetch(`/compute/create?id=${id}`, {
+          method: 'POST',
         })
-      })
+      } catch(e) { console.error(e) }
 
-      if (req.status === 200) {
-        // Store state updates
-        const updates = await req.json()
-
-        this.events = updates.events
-      } else {
-        console.log(`HTTP/${req.status}`)
+      if (hInit?.status !== 200) {
+        throw new Error(`${hInit.url} - Failed, HTTP/${hInit.status}`)
       }
+
+      // open or return the local editor API URL that redirects to the editor
+      const editorUrl = `/compute/editor/${id}?t=${template}`
+      if (open) {
+        window.open(editorUrl, '_blank')
+      }
+
+      return editorUrl
     }
     catch (e) {
       console.error(e)
@@ -233,4 +233,4 @@ createApp({
     this.deploying = false
     console.log('Deployment finished.')
   }
-}).mount('#app').mount('#events')
+}).mount('body')
