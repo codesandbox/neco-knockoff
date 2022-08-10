@@ -1,10 +1,12 @@
 version: '3'
 services:
   scc-app:
-    image: knockoff
+    image: knockoff:latest
     # launch last
     depends_on:
       - scc-atmo
+    environment:
+      CODESANDBOX_HOST: $CODESANDBOX_HOST
     ports:
      - "3000:8080"
     networks:
